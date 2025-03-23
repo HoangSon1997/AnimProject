@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private fun handleByView() {
         imageView = findViewById(R.id.imageView)
         customView = findViewById(R.id.custom_view)
+        customView.setImgMain(imageView)
         imageView.setOnClickListener {
             customView.showImage(imageView)
             imageView.visibility = View.GONE
