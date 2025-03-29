@@ -21,7 +21,7 @@ class CustomView @JvmOverloads constructor(
 
     private val imgViewDetail: ImageView
     private lateinit var imgViewMain: ImageView
-    private lateinit var containerView: FrameLayout
+    private var containerView: FrameLayout
     private var startBounds: Rect? = null
     private var startScaleX: Float = 1f
     private var startScaleY: Float = 1f
@@ -44,7 +44,7 @@ class CustomView @JvmOverloads constructor(
         val originalX = imgViewDetail.x
         val originalY = imgViewDetail.y
 
-        imgViewDetail.setOnTouchListener(object : View.OnTouchListener {
+        imgViewDetail.setOnTouchListener(object : OnTouchListener {
             private var dX = 0f
             private var dY = 0f
 

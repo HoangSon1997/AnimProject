@@ -3,11 +3,7 @@ package com.example.animproject
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.ViewCompat.animate
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,7 +14,6 @@ val list = mutableListOf(R.drawable.image, R.drawable.image, R.drawable.image, R
 
 class MainActivity : AppCompatActivity(), ClickListener {
 
-    private lateinit var imageView: ImageView
     private lateinit var customView: CustomView
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ImageAdapter
