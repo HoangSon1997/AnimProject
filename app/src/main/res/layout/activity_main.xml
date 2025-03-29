@@ -21,6 +21,12 @@
         android:layout_height="100dp"
         android:src="@drawable/image" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+
     <com.example.animproject.CustomView
         android:id="@+id/custom_view"
         android:layout_width="match_parent"

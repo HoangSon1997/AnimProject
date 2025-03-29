@@ -6,14 +6,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Rect
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
-import androidx.core.view.ViewCompat
 import kotlin.math.abs
 
 @SuppressLint("ClickableViewAccessibility")
@@ -21,11 +19,15 @@ class CustomView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
-    private val imgView: ImageView
+    private val imgViewDetail: ImageView
     private lateinit var imgViewMain: ImageView
+    private lateinit var containerView: FrameLayout
     private var startBounds: Rect? = null
     private var startScaleX: Float = 1f
     private var startScaleY: Float = 1f
+    private var isAnimating = false
+    private val originalX = 0f
+    private val originalY = 0f
 
     fun setImgMain(imgMain: ImageView) {
         imgViewMain = imgMain
@@ -33,14 +35,16 @@ class CustomView @JvmOverloads constructor(
 
     init {
         LayoutInflater.from(context).inflate(R.layout.view_zoom_image, this, true)
-        imgView = findViewById(R.id.imageViewDetail)
+        imgViewDetail = findViewById(R.id.imageViewDetail)
+        containerView = findViewById(R.id.container)
 
-        visibility = View.GONE // Ẩn view khi mới tạo
+        alpha = 0f
+        visibility = View.INVISIBLE // Ẩn view khi mới tạo
 
-        val originalX = imgView.x
-        val originalY = imgView.y
+        val originalX = imgViewDetail.x
+        val originalY = imgViewDetail.y
 
-        imgView.setOnTouchListener(object : View.OnTouchListener {
+        imgViewDetail.setOnTouchListener(object : View.OnTouchListener {
             private var dX = 0f
             private var dY = 0f
 
@@ -52,6 +56,7 @@ class CustomView @JvmOverloads constructor(
                     }
 
                     MotionEvent.ACTION_MOVE -> {
+                        containerView.setBackgroundColor(context.getColor(android.R.color.transparent))
                         view.animate()
                             .x(event.rawX + dX)
                             .y(event.rawY + dY)
@@ -63,9 +68,6 @@ class CustomView @JvmOverloads constructor(
                     MotionEvent.ACTION_UP -> {
                         if (abs(event.rawY + dY - originalY) > 500) {
                             hideWithAnimation(imgViewMain)
-                            view.x = originalX
-                            view.y = originalY
-
                         } else {
                             // Khi thả tay, ImageView trở về vị trí ban đầu
                             view.animate()
@@ -73,6 +75,7 @@ class CustomView @JvmOverloads constructor(
                                 .y(originalY)
                                 .setDuration(500) // 0.5 giây để trở về
                                 .start()
+                            containerView.setBackgroundColor(context.getColor(R.color.white))
                         }
                     }
                 }
@@ -83,8 +86,13 @@ class CustomView @JvmOverloads constructor(
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    fun showImage(startView: ImageView) {
+    fun showImage(position: Int, startView: ImageView) {
+        if (isAnimating) return
+        isAnimating = true
+
+        imgViewDetail.setImageResource(list[position])
         visibility = View.VISIBLE
+        containerView.setBackgroundColor(context.getColor(R.color.white))
         post {
             startBounds = Rect()
             val finalBounds = Rect()
@@ -123,6 +131,12 @@ class CustomView @JvmOverloads constructor(
                 .setListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationStart(animation: Animator) {
                         visibility = View.VISIBLE // Đảm bảo hiển thị khi mở
+                        alpha = 1f
+                    }
+
+                    override fun onAnimationEnd(animation: Animator) {
+                        super.onAnimationEnd(animation)
+                        isAnimating = false
                     }
                 })
                 .start()
@@ -139,12 +153,14 @@ class CustomView @JvmOverloads constructor(
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     post {
-                        visibility = View.GONE
+                        visibility = View.INVISIBLE
+                        alpha = 0f
                         scaleX = 1f
                         scaleY = 1f
                         translationX = 0f
                         translationY = 0f
                         imgMain.visibility = View.VISIBLE
+                        imgViewDetail.animate().x(originalX).y(originalY).setDuration(0).start()
                     }
                 }
             })
